@@ -151,3 +151,11 @@ Desktop.ini
 ######################
 coverage/
 .nyc_output/
+
+######################
+# Sensitive / Local files
+######################
+token.txt
+output.txt
+curl
+*.token
