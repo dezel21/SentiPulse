@@ -1,266 +1,121 @@
-# SentiPulse
+# <p align="center"> 📊 SentiPulse (`senti-pulse`)</p>
 
-This application was generated using JHipster 9.1.0, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v9.1.0](https://www.jhipster.tech/documentation-archive/v9.1.0).
+<p align="center">
+  <img src="https://img.shields.io/badge/JHipster-v9.1.0-F58120?style=for-the-badge&logo=jhipster&logoColor=white" alt="JHipster">
+  <img src="https://img.shields.io/badge/Spring_Boot-3.5.14-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white" alt="Spring Boot">
+  <img src="https://img.shields.io/badge/Angular-21.2.14-DD0031?style=for-the-badge&logo=angular&logoColor=white" alt="Angular">
+  <img src="https://img.shields.io/badge/MySQL-8%2B-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL">
+</p>
 
-## Project Structure
+## 📝 Gambaran Umum
+**SentiPulse** adalah platform analisis sentimen pasar saham dan aset kripto berbasis *full-stack monolith reaktif*. Proyek ini dirancang khusus untuk memenuhi standar tugas akhir kelompok mata kuliah **Keamanan Jaringan (Semester 4), Program Studi S1 Sistem Informasi, Universitas Pembangunan Nasional "Veteran" Jakarta**. 
 
-Node is required for generation and recommended for development. `package.json` is always generated for a better development experience with prettier, commit hooks, scripts and so on.
+Fokus utama proyek ini adalah menerapkan cetak biru keamanan hibrida pada lapisan atas model OSI (Layer 5, 6, dan 7) menggunakan kombinasi teknologi tangguh dari **Apache Software Foundation** untuk melindungi data finansial yang sensitif.
 
-In the project root, JHipster generates configuration files for tools like git, prettier, eslint, husky, and others that are well known and you can find references in the web.
+---
 
-`/src/*` structure follows default Java structure.
+## 🔒 Fitur Utama Keamanan (Layer 5-6-7 OSI)
 
-- `.yo-rc.json` - Yeoman configuration file
-  JHipster configuration is stored in this file at `generator-jhipster` key. You may find `generator-jhipster-*` for specific blueprints configuration.
-- `.yo-resolve` (optional) - Yeoman conflict resolver
-  Allows to use a specific action when conflicts are found skipping prompts for files that matches a pattern. Each line should match `[pattern] [action]` with pattern been a [Minimatch](https://github.com/isaacs/minimatch#minimatch) pattern and action been one of skip (default if omitted) or force. Lines starting with `#` are considered comments and are ignored.
-- `.jhipster/*.json` - JHipster entity configuration files
+### 🔑 Layer 5 — Session Layer
+* **Centralized Identity Store:** Autentikasi disinkronisasikan secara terpusat melalui direktori LDAP berbasis **Apache Fortress (OpenLDAP)** pada port 389.
+* **Stateless JWT Session:** Manajemen sesi menggunakan token JWT (HS512) dengan validitas standar 24 jam dan ekstensi *Remember Me* hingga 30 hari.
 
-- `npmw` - wrapper to use locally installed npm.
-  JHipster installs Node and npm locally using the build tool by default. This wrapper makes sure npm is installed locally and uses it avoiding some differences different versions can cause. By using `./npmw` instead of the traditional `npm` you can configure a Node-less environment to develop or test your application.
-- `/src/main/docker` - Docker configurations for the application and services that the application depends on
+### 🛡️ Layer 6 — Presentation Layer
+* **TLS Termination:** Mengubah transmisi data *plaintext* menjadi *ciphertext* terenkripsi aman melalui HTTPS pada port 9443 menggunakan **Apache APISIX**.
+* **Data Integrity:** Validasi format objek data JSON di level *gateway* sebelum dieksekusi oleh *backend*[cite: 1].
 
-## Development
+### 🚀 Layer 7 — Application Layer
+* **API Gateway & Rate Limiting:** Pembatasan kuota pemanggilan rute via plugin `limit-req` di **Apache APISIX** untuk menangkal *bot scraper* dan serangan *brute force*[cite: 1].
+* **Distributed Tracing:** Pengawasan jejak transaksi API non-blocking secara visual menggunakan **Apache SkyWalking**[cite: 1].
+* **Availability Monitoring:** Sistem deteksi *health-check* infrastruktur otomatis setiap 60 detik menggunakan **Apache HertzBeat**[cite: 1].
 
-The build system will install automatically the recommended version of Node and npm.
+---
 
-We provide a wrapper to launch npm.
-You will only need to run this command when dependencies change in [package.json](package.json).
+## 💻 Arsitektur & Tech Stack
 
+### Backend & Database
+* **Core Framework:** Spring Boot 3.5.14 & Spring WebFlux (Reactive Stack)[cite: 1]
+* **Reactive Stream:** Project Reactor & Micrometer Context Propagation[cite: 1]
+* **Data Access:** Spring Data R2DBC (Non-blocking MySQL driver)[cite: 1]
+* **Migration:** Liquibase Database Schema Management[cite: 1]
+
+### Frontend UI
+* Angular 21.2.14, Bootstrap 5.3.8, & RxJS 7.8.2[cite: 1]
+
+### Perangkat Jaringan & Observabilitas
+* Apache APISIX v3.10.0, Apache Fortress (OpenLDAP v1.5.0), Apache SkyWalking v9.5.0, Apache HertzBeat v1.6.0, dan etcd v3.5.0[cite: 1].
+
+---
+
+## 🗺️ Arsitektur Jaringan Zero-Trust
+
+```text
+       [ CLIENT / USER BROWSER ] 
+                   │
+                   ▼ (Koneksi Terenkripsi Port 9443 / HTTPS)  <-- [LAYER 6: TLS Termination]
+   ┌─────────────────────────────────────────────────────────┐
+   │                  APACHE APISIX (Gateway)                │
+   │  - Validasi Sesi & JWT Token     <-- [LAYER 5]          │
+   │  - Plugin Rate Limiting (Anti-BotScraper) <-- [LAYER 7] │
+   └───────────┬─────────────────────────────────────────────┘
+               │
+               ├───────► [ APACHE FORTRESS ] (Verifikasi Otorisasi Direktori LDAP) <-- [LAYER 5/7]
+               │
+               ▼ (Jaringan Jembatan Internal / Docker Bridge Network)
+   ┌─────────────────────────────────────────────────────────┐
+   │                    ZONA LAYANAN JHIPSTER                │
+   │  ├── sentiment-service (Port 8081) ◄── [SkyWalking Agent]│
+   │  └── analyst-service   (Port 8082) ◄── [SkyWalking Agent]│
+   └───────────────────────────┬─────────────────────────────┘
+                               │
+                               ├───────► [ APACHE SKYWALKING OAP ] (Distributed Tracing Log)
+                               │
+                               └───────► [ APACHE HERTZBEAT ] (Health Check & Alerting)
+```
+---
+
+## 🚀 Panduan Instalasi & Simulasi
+
+### 🛠️ Prasyarat Perangkat
+* Docker & Docker Compose aktif
+* Java 21/25 & Node.js minimum v24[cite: 1]
+
+### 1. Kloning Repositori
 ```bash
-./npmw install
+git clone [https://github.com/username-kamu/sentimen-pasar-jhipster.git](https://github.com/username-kamu/sentimen-pasar-jhipster.git)
+cd sentimen-pasar-jhipster
 ```
-
-We use npm scripts and [Angular CLI](https://angular.dev/tools/cli) with esbuild as our build system.
-
-Run the following commands in two separate terminals to create a blissful development experience where your browser
-auto-refreshes when files change on your hard drive.
-
-```bash
-./npmw run backend:start
-./npmw run start
+2. Nyalakan Kontainer Ekosistem Keamanan via Docker
+```Bash
+docker compose up -d
 ```
-
-Npm is also used to manage CSS and JavaScript dependencies used in this application. You can upgrade dependencies by
-specifying a newer version in [package.json](package.json). You can also run `./npmw update` and `./npmw install` to manage dependencies.
-Add the `help` flag on any command to see how you can use it. For example, `./npmw help update`.
-
-The `./npmw run` command will list all the scripts available to run for this project.
-
-### PWA Support
-
-JHipster ships with PWA (Progressive Web App) support, and it's turned off by default. One of the main components of a PWA is a service worker.
-
-The service worker initialization code is disabled by default. To enable it, uncomment the following code in `src/main/webapp/app/app.config.ts`:
-
-```typescript
-ServiceWorkerModule.register('ngsw-worker.js', { enabled: false }),
+3. Periksa Status Kontainer
+```Bash
+docker compose ps
 ```
+Pastikan seluruh layanan (APISIX, Fortress, SkyWalking, HertzBeat, JHipster application) berstatus Up / Running[cite: 1].
+---
 
-### Managing dependencies
+## 🧪 Skenario Uji (Bahan Laporan Bab 5)
+Jalankan perintah pengujian keamanan berikut melalui Terminal/Postman untuk memverifikasi efektivitas benteng jaringan:
 
-For example, to add [Leaflet](https://leafletjs.com/) library as a runtime dependency of your application, you would run the following command:
+A. Uji Coba Layer 5 — Sesi Ditolak (Unauthorized)
+Mencoba menembak API sentimen tanpa melampirkan JWT token:
 
-```bash
-./npmw install --save --save-exact leaflet
+```Bash
+curl -i http://localhost:9080/api/authenticate
 ```
+Ekspektasi Respon: HTTP/1.1 401 Unauthorized dengan header Server: APISIX/3.10.0.
+B. Uji Coba Layer 7 — Broken Access Control (Forbidden)
+Mencoba mengakses fitur administratif internal menggunakan peran level rendah:
 
-To benefit from TypeScript type definitions from [DefinitelyTyped](https://definitelytyped.org/) repository in development, you would run the following command:
-
-```bash
-./npmw install --save-dev --save-exact @types/leaflet
+```Bash
+curl -i -X POST http://localhost:9080/api/admin/users -H "Role: ROLE_USER"
 ```
-
-Then you would import the JS and CSS files specified in library's installation instructions so that [esbuild][] knows about them:
-Edit [src/main/webapp/app/app.config.ts](src/main/webapp/app/app.config.ts) file:
-
-```typescript
-import 'leaflet/dist/leaflet.js';
-```
-
-Edit [src/main/webapp/content/scss/vendor.scss](src/main/webapp/content/scss/vendor.scss) file:
-
-```typescript
-@import 'leaflet/dist/leaflet.css';
-```
-
-Note: There are still a few other things remaining to do for Leaflet that we won't detail here.
-
-For further instructions on how to develop with JHipster, have a look at [Using JHipster in development](https://www.jhipster.tech/development/).
-
-### Using Angular CLI
-
-You can also use [Angular CLI](https://angular.dev/tools/cli) to generate some custom client code.
-
-For example, the following command:
-
-```bash
-ng generate component my-component
-```
-
-will generate few files:
-
-```bash
-create src/main/webapp/app/my-component/my-component.html
-create src/main/webapp/app/my-component/my-component.ts
-update src/main/webapp/app/app.config.ts
-```
-
-## Building for production
-
-### Packaging as jar
-
-To build the final jar and optimize the SentiPulse application for production, run:
-
-```bash
-./mvnw -Pprod clean verify
-```
-
-This will concatenate and minify the client CSS and JavaScript files. It will also modify `index.html` so it references these new files.
-To ensure everything worked, run:
-
-```bash
-java -jar target/*.jar
-```
-
-Then navigate to [http://localhost:8080](http://localhost:8080) in your browser.
-
-Refer to [Using JHipster in production][] for more details.
-
-### Packaging as war
-
-To package your application as a war in order to deploy it to an application server, run:
-
-```bash
-./mvnw -Pprod,war clean verify
-```
-
-### JHipster Control Center
-
-JHipster Control Center can help you manage and control your application(s). You can start a local control center server (accessible on http://localhost:7419) with:
-
-```bash
-docker compose -f src/main/docker/jhipster-control-center.yml up
-```
-
-## Testing
-
-### Spring Boot tests
-
-To launch your application's tests, run:
-
-```bash
-./mvnw verify
-```
-
-### Client tests
-
-Unit tests are run by Vitest. They're located near components and can be run with:
-
-```bash
-./npmw test
-```
-
-## Others
-
-### Code quality using Sonar
-
-Sonar is used to analyse code quality. You can start a local Sonar server (accessible on http://localhost:9001) with:
-
-```bash
-docker compose -f src/main/docker/sonar.yml up -d
-```
-
-Note: we have turned off forced authentication redirect for UI in [src/main/docker/sonar.yml](src/main/docker/sonar.yml) for out of the box experience while trying out SonarQube, for real use cases turn it back on.
-
-You can run a Sonar analysis with using the [sonar-scanner](https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner) or by using the maven plugin.
-
-Then, run a Sonar analysis:
-
-```bash
-./mvnw -Pprod clean verify sonar:sonar -Dsonar.login=admin -Dsonar.password=admin
-```
-
-If you need to re-run the Sonar phase, please be sure to specify at least the `initialize` phase since Sonar properties are loaded from the sonar-project.properties file.
-
-```bash
-./mvnw initialize sonar:sonar -Dsonar.login=admin -Dsonar.password=admin
-```
-
-Additionally, Instead of passing `sonar.password` and `sonar.login` as CLI arguments, these parameters can be configured from [sonar-project.properties](sonar-project.properties) as shown below:
-
-```bash
-sonar.login=admin
-sonar.password=admin
-```
-
-For more information, refer to the [Code quality page][].
-
-### Docker Compose support
-
-JHipster generates a number of Docker Compose configuration files in the [src/main/docker/](src/main/docker/) folder to launch required third party services.
-
-For example, to start required services in Docker containers, run:
-
-```bash
-docker compose -f src/main/docker/services.yml up -d
-```
-
-To stop and remove the containers, run:
-
-```bash
-docker compose -f src/main/docker/services.yml down
-```
-
-[Spring Docker Compose Integration](https://docs.spring.io/spring-boot/reference/features/dev-services.html) is enabled by default. It's possible to disable it in `application.yml`:
-
-```yaml
-spring:
-  ...
-  docker:
-    compose:
-      enabled: false
-```
-
-You can also fully dockerize your application and all the services that it depends on.
-To achieve this, first build a Docker image of your app by running:
-
-```bash
-npm run java:docker
-```
-
-Or build an arm64 Docker image when using an arm64 processor OS, i.e., Apple Silicon chips (M\*), running:
-
-```bash
-npm run java:docker:arm64
-```
-
-Then run:
-
-```bash
-docker compose -f src/main/docker/app.yml up -d
-```
-
-For more information refer to [Docker and Docker-Compose](https://www.jhipster.tech/documentation-archive/v9.1.0/docker-compose/), this page also contains information on the Docker Compose sub-generator (`jhipster docker-compose`), which is able to generate Docker configurations for one or several JHipster applications.
-
-## Continuous Integration (optional)
-
-To configure CI for your project, run the ci-cd sub-generator (`jhipster ci-cd`), this will let you generate configuration files for a number of Continuous Integration systems. Consult the [Setting up Continuous Integration](https://www.jhipster.tech/documentation-archive/v9.1.0/setting-up-ci/) page for more information.
-
-## References
-
-- [JHipster Homepage and latest documentation](https://www.jhipster.tech/)
-- [JHipster 9.1.0 archive](https://www.jhipster.tech/documentation-archive/v9.1.0)
-- [Using JHipster in development](https://www.jhipster.tech/documentation-archive/v9.1.0/development/)
-- [Using Docker and Docker-Compose](https://www.jhipster.tech/documentation-archive/v9.1.0/docker-compose)
-- [Using JHipster in production](https://www.jhipster.tech/documentation-archive/v9.1.0/production/)
-- [Running tests page](https://www.jhipster.tech/documentation-archive/v9.1.0/running-tests/)
-- [Code quality page](https://www.jhipster.tech/documentation-archive/v9.1.0/code-quality/)
-- [Setting up Continuous Integration](https://www.jhipster.tech/documentation-archive/v9.1.0/setting-up-ci/)
-- [Node.js](https://nodejs.org/)
-- [NPM](https://www.npmjs.com/)
-- [BrowserSync](https://www.browsersync.io/)
-- [Jest](https://jestjs.io)
-- [Leaflet](https://leafletjs.com/)
-- [DefinitelyTyped](https://definitelytyped.org/)
-- [Angular CLI](https://angular.dev/tools/cli)
+Ekspektasi Respon: HTTP/1.1 403 Forbidden diblokir oleh kebijakan hak akses.
+
+C. Uji Coba Monitoring Dashboard
+Apache SkyWalking (Tracing UI): 
+Buka ```http://localhost:8081``` untuk melihat peta topologi transaksi data dan audit log trace
+Apache HertzBeat (Availability UI): 
+Buka ```http://localhost:1157``` untuk memantau status kesehatan server secara real-time
