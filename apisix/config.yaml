@@ -1,0 +1,68 @@
+apisix:
+  node_listen: 9080
+  enable_ipv6: false
+  enable_admin: true
+  enable_http2: true
+  admin_listen:
+    ip: 0.0.0.0
+    port: 9092
+
+  ssl:
+    enable: true
+    listen:
+      - port: 9443
+
+deployment:
+  role: traditional
+  role_traditional:
+    config_provider: etcd
+  admin:
+    admin_key:
+      - name: admin
+        key: edd1c9f034335f136f87ad84b625c8f1
+        role: admin
+      - name: viewer
+        key: 4054f7cf07e344346cd3f287985e76a2
+        role: viewer
+    admin_key_required: true
+  etcd:
+    host:
+      - "http://etcd:2379"
+    prefix: "/apisix"
+    timeout: 30
+
+plugin_attr:
+  skywalking:
+    service_name: SentiPulse-APISIX
+    service_instance_name: APISIX-Instance-1
+    endpoint_addr: http://skywalking-oap:12800
+
+plugins:
+  - real-ip
+  - client-control
+  - proxy-control
+  - request-id
+  - skywalking
+  - fault-injection
+  - serverless-pre-function
+  - cors
+  - ip-restriction
+  - ua-restriction
+  - csrf
+  - uri-blocker
+  - request-validation
+  - openid-connect
+  - ldap-auth
+  - limit-req
+  - limit-count
+  - limit-conn
+  - gzip
+  - proxy-cache
+  - proxy-rewrite
+  - api-breaker
+  - redirect
+  - response-rewrite
+  - http-logger
+  - file-logger
+  - log-rotate
+  - skywalking-logger

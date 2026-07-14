@@ -1,0 +1,70 @@
+services:
+  apisix:
+    image: apache/apisix:3.10.0-debian
+    platform: linux/amd64
+    ports:
+      - '9080:9080'
+      - '9443:9443'
+      - '9092:9092'
+    volumes:
+      - ./apisix/config.yaml:/usr/local/apisix/conf/config.yaml:ro
+    depends_on:
+      - etcd
+    restart: unless-stopped
+
+  apisix-dashboard:
+    image: apache/apisix-dashboard:3.0.1-alpine
+    platform: linux/amd64
+    ports:
+      - '9000:9000'
+    volumes:
+      - ./apisix/dashboard.yaml:/usr/local/apisix-dashboard/conf/conf.yaml:ro
+    depends_on:
+      - etcd
+    restart: unless-stopped
+
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.0
+    platform: linux/amd64
+    environment:
+      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
+      - ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379
+      - ALLOW_NONE_AUTHENTICATION=yes
+    ports:
+      - '2379:2379'
+    restart: unless-stopped
+
+  fortress:
+    image: osixia/openldap:1.5.0
+    platform: linux/amd64
+    ports:
+      - '389:389'
+    environment:
+      - LDAP_ORGANISATION=Apache Fortress
+      - LDAP_DOMAIN=example.com
+      - LDAP_ADMIN_PASSWORD=secret
+    restart: unless-stopped
+
+  skywalking-oap:
+    image: apache/skywalking-oap-server:9.5.0
+    platform: linux/amd64
+    ports:
+      - '11800:11800'
+      - '12800:12800'
+    restart: unless-stopped
+
+  skywalking-ui:
+    image: apache/skywalking-ui:9.5.0
+    platform: linux/amd64
+    ports:
+      - '8081:8080'
+    environment:
+      - SW_OAP_ADDRESS=http://skywalking-oap:12800
+    restart: unless-stopped
+
+  hertzbeat:
+    image: apache/hertzbeat:v1.6.0
+    platform: linux/amd64
+    ports:
+      - '1157:1157'
+    restart: unless-stopped

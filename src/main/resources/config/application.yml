@@ -98,22 +98,20 @@ spring:
       lifecycle-management: start-only
       file: src/main/docker/services.yml
   profiles:
-    # The commented value for `active` can be replaced with valid Spring profiles to load.
-    # Otherwise, it will be filled in by maven when building the JAR file
-    # Either way, it can be overridden by `--spring.profiles.active` value passed in the commandline or `-Dspring.profiles.active` set in `JAVA_OPTS`
     active: '@spring.profiles.active@'
     group:
       dev:
         - secret-samples
         - api-docs
-        # Uncomment to activate TLS for the dev profile
-        #- tls
   jmx:
     enabled: false
   messages:
     basename: i18n/messages
   main:
     allow-bean-definition-overriding: true
+  aop:
+    proxy-target-class: true
+    auto: true
   webflux:
     problemdetails:
       enabled: true
@@ -149,28 +147,12 @@ server:
 springdoc:
   show-actuator: true
 
-# Properties to be exposed on the /info management endpoint
 info:
-  # Comma separated list of profiles that will trigger the ribbon to show
   display-ribbon-on-profiles: 'dev'
-
-# ===================================================================
-# JHipster specific properties
-#
-# Full reference is available at: https://www.jhipster.tech/common-application-properties/
-# ===================================================================
 
 jhipster:
   clientApp:
     name: 'sentiPulseApp'
-  # By default CORS is disabled. Uncomment to enable.
-  # cors:
-  #   allowed-origins: "http://localhost:8100,http://localhost:9000"
-  #   allowed-methods: "*"
-  #   allowed-headers: "*"
-  #   exposed-headers: "Authorization,Link,X-Total-Count,X-${jhipster.clientApp.name}-alert,X-${jhipster.clientApp.name}-error,X-${jhipster.clientApp.name}-params"
-  #   allow-credentials: true
-  #   max-age: 1800
   mail:
     from: SentiPulse@localhost
   api-docs:
@@ -193,11 +175,6 @@ jhipster:
 ---
 # ===================================================================
 # Application specific properties
-# Add your own application properties here, see the ApplicationProperties class
-# to have type-safe configuration, like in the JHipsterProperties above
-#
-# More documentation is available at:
-# https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
 # application:
