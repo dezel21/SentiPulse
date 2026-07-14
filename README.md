@@ -22,28 +22,28 @@ Fokus utama proyek ini adalah menerapkan cetak biru keamanan hibrida pada lapisa
 
 ### 🛡️ Layer 6 — Presentation Layer
 * **TLS Termination:** Mengubah transmisi data *plaintext* menjadi *ciphertext* terenkripsi aman melalui HTTPS pada port 9443 menggunakan **Apache APISIX**.
-* **Data Integrity:** Validasi format objek data JSON di level *gateway* sebelum dieksekusi oleh *backend*[cite: 1].
+* **Data Integrity:** Validasi format objek data JSON di level *gateway* sebelum dieksekusi oleh *backend*.
 
 ### 🚀 Layer 7 — Application Layer
 * **API Gateway & Rate Limiting:** Pembatasan kuota pemanggilan rute via plugin `limit-req` di **Apache APISIX** untuk menangkal *bot scraper* dan serangan *brute force*[cite: 1].
-* **Distributed Tracing:** Pengawasan jejak transaksi API non-blocking secara visual menggunakan **Apache SkyWalking**[cite: 1].
-* **Availability Monitoring:** Sistem deteksi *health-check* infrastruktur otomatis setiap 60 detik menggunakan **Apache HertzBeat**[cite: 1].
+* **Distributed Tracing:** Pengawasan jejak transaksi API non-blocking secara visual menggunakan **Apache SkyWalking**.
+* **Availability Monitoring:** Sistem deteksi *health-check* infrastruktur otomatis setiap 60 detik menggunakan **Apache HertzBeat**.
 
 ---
 
 ## 💻 Arsitektur & Tech Stack
 
 ### Backend & Database
-* **Core Framework:** Spring Boot 3.5.14 & Spring WebFlux (Reactive Stack)[cite: 1]
-* **Reactive Stream:** Project Reactor & Micrometer Context Propagation[cite: 1]
-* **Data Access:** Spring Data R2DBC (Non-blocking MySQL driver)[cite: 1]
-* **Migration:** Liquibase Database Schema Management[cite: 1]
+* **Core Framework:** Spring Boot 3.5.14 & Spring WebFlux (Reactive Stack)
+* **Reactive Stream:** Project Reactor & Micrometer Context Propagation
+* **Data Access:** Spring Data R2DBC (Non-blocking MySQL driver)
+* **Migration:** Liquibase Database Schema Management
 
 ### Frontend UI
-* Angular 21.2.14, Bootstrap 5.3.8, & RxJS 7.8.2[cite: 1]
+* Angular 21.2.14, Bootstrap 5.3.8, & RxJS 7.8.2
 
 ### Perangkat Jaringan & Observabilitas
-* Apache APISIX v3.10.0, Apache Fortress (OpenLDAP v1.5.0), Apache SkyWalking v9.5.0, Apache HertzBeat v1.6.0, dan etcd v3.5.0[cite: 1].
+* Apache APISIX v3.10.0, Apache Fortress (OpenLDAP v1.5.0), Apache SkyWalking v9.5.0, Apache HertzBeat v1.6.0, dan etcd v3.5.0.
 
 ---
 
@@ -78,7 +78,7 @@ Fokus utama proyek ini adalah menerapkan cetak biru keamanan hibrida pada lapisa
 
 ### 🛠️ Prasyarat Perangkat
 * Docker & Docker Compose aktif
-* Java 21/25 & Node.js minimum v24[cite: 1]
+* Java 21/25 & Node.js minimum v24
 
 ### 1. Kloning Repositori
 ```bash
@@ -93,7 +93,7 @@ docker compose up -d
 ```Bash
 docker compose ps
 ```
-Pastikan seluruh layanan (APISIX, Fortress, SkyWalking, HertzBeat, JHipster application) berstatus Up / Running[cite: 1].
+Pastikan seluruh layanan (APISIX, Fortress, SkyWalking, HertzBeat, JHipster application) berstatus Up / Running.
 ---
 
 ## 🧪 Skenario Uji (Bahan Laporan Bab 5)
